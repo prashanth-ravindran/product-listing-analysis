@@ -1,8 +1,8 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import sqlite3 from "sqlite3";
+import { NextResponse } from "next/server";
 
 const ADMIN_USER = process.env.AUTH_ADMIN_USER || "admin";
 const ADMIN_PASS = process.env.AUTH_ADMIN_PASS || "xtract1234";
@@ -69,20 +69,19 @@ function get(
   });
 }
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", "POST");
-    return res.status(405).json({ error: "Method not allowed. Use POST." });
-  }
-
+export async function POST(request: Request) {
   const dbPath = DEFAULT_DB_PATH;
 
   try {
-    const username = String(req.body?.username || "").trim();
-    const password = String(req.body?.password || "").trim();
+    const body = await request.json();
+    const username = String(body?.username || "").trim();
+    const password = String(body?.password || "").trim();
 
     if (!username || !password) {
-      return res.status(400).json({ error: "Username and password are required." });
+      return NextResponse.json(
+        { error: "Username and password are required." },
+        { status: 400 }
+      );
     }
 
     return await withDb(dbPath, async (db) => {
@@ -94,22 +93,27 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       );
 
       if (!row) {
-        return res.status(401).json({ error: "Invalid credentials." });
+        return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
       }
 
       const storedHash = String(row.hash || "");
       if (storedHash !== hashPassword(password)) {
-        return res.status(401).json({ error: "Invalid credentials." });
+        return NextResponse.json({ error: "Invalid credentials." }, { status: 401 });
       }
 
-      return res.status(200).json({ ok: true, user: username });
+      return NextResponse.json({ ok: true, user: username });
     });
   } catch (error) {
     if (error instanceof SyntaxError) {
-      return res.status(400).json({ error: "Invalid JSON payload." });
+      return NextResponse.json({ error: "Invalid JSON payload." }, { status: 400 });
     }
-    return res.status(500).json({
-      error: `Login failed: ${error instanceof Error ? error.message : "unknown error"}`
-    });
+    return NextResponse.json(
+      { error: `Login failed: ${error instanceof Error ? error.message : "unknown error"}` },
+      { status: 500 }
+    );
   }
+}
+
+export function GET() {
+  return NextResponse.json({ error: "Method not allowed. Use POST." }, { status: 405 });
 }
