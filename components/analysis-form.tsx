@@ -35,7 +35,7 @@ export default function AnalysisForm() {
     setMessage("Calling /api/analyze via Python + Gemini...");
 
     try {
-      const response = await fetch("/api/analyze", {
+      const response = await fetch("/api_py/analyze", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ query, items: sampleItems })

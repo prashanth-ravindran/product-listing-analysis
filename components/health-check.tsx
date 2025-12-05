@@ -19,7 +19,7 @@ export default function HealthCheckCard() {
     setMessage("Checking backend health...");
 
     try {
-      const response = await fetch("/api/health", { cache: "no-store" });
+      const response = await fetch("/api_py/health", { cache: "no-store" });
       const data = await response.json();
 
       if (!response.ok) {
