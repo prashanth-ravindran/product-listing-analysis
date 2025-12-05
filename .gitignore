@@ -1,0 +1,28 @@
+# Node / Next
+node_modules/
+.next/
+.turbo/
+out/
+.vercel/
+
+# Env
+.env
+.env.local
+.env.production
+.env.development
+
+# Python
+.venv/
+__pycache__/
+*.db
+
+# Auth DB path (overridable via AUTH_DB_PATH)
+auth.db
+
+# OS / misc
+.DS_Store
+Thumbs.db
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
